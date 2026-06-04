@@ -1,9 +1,11 @@
 #![feature(portable_simd)]
 use std::simd::prelude::*;
 
+
 fn main() {
-    
+
 }
+
 
 /// Uses MSB bit ordering such that MSB is index 0 and LSB is index 31.
 fn transpose_msb(matrix: &mut[u32; 32]) {
@@ -81,10 +83,10 @@ fn transpose_lsb(matrix: &mut [u32; 32]) {
     let hi = u32x16::from_slice(&matrix[0..16]);
     let lo = u32x16::from_slice(&matrix[16..32]);
 
-    const MASK_16: u32x16 = u32x16::splat(0x0000FFFF);
+    const MASK_16:  u32x16 = u32x16::splat(0x0000FFFF);
     const SHIFT_16: u32x16 = u32x16::splat(16);
 
-    let hi16 = (hi & MASK_16) | lo << SHIFT_16;
+    let hi16 = (hi &  MASK_16) | lo << SHIFT_16;
     let lo16 = (lo & !MASK_16) | hi >> SHIFT_16;
 
     // 8 bits
@@ -93,10 +95,10 @@ fn transpose_lsb(matrix: &mut [u32; 32]) {
     let hi8_prep = simd_swizzle!(hi16, lo16, SWIZZLE_8_HI);
     let lo8_prep = simd_swizzle!(hi16, lo16, SWIZZLE_8_LO);
 
-    const MASK_8: u32x16 = u32x16::splat(0x00FF00FF);
+    const MASK_8:  u32x16 = u32x16::splat(0x00FF00FF);
     const SHIFT_8: u32x16 = u32x16::splat(8);
 
-    let hi8 = (hi8_prep & MASK_8) | ((lo8_prep & MASK_8) << SHIFT_8);
+    let hi8 = (hi8_prep &  MASK_8) | ((lo8_prep &  MASK_8) << SHIFT_8);
     let lo8 = (lo8_prep & !MASK_8) | ((hi8_prep & !MASK_8) >> SHIFT_8);
 
     // 4 bits
@@ -105,10 +107,10 @@ fn transpose_lsb(matrix: &mut [u32; 32]) {
     let hi4_prep = simd_swizzle!(hi8, lo8, SWIZZLE_4_HI);
     let lo4_prep = simd_swizzle!(hi8, lo8, SWIZZLE_4_LO);
 
-    const MASK_4: u32x16 = u32x16::splat(0x0F0F0F0F);
+    const MASK_4:  u32x16 = u32x16::splat(0x0F0F0F0F);
     const SHIFT_4: u32x16 = u32x16::splat(4);
 
-    let hi4 = (hi4_prep & MASK_4) | ((lo4_prep & MASK_4) << SHIFT_4);
+    let hi4 = (hi4_prep &  MASK_4) | ((lo4_prep &  MASK_4) << SHIFT_4);
     let lo4 = (lo4_prep & !MASK_4) | ((hi4_prep & !MASK_4) >> SHIFT_4);
 
     // 2 bits
@@ -117,10 +119,10 @@ fn transpose_lsb(matrix: &mut [u32; 32]) {
     let hi2_prep = simd_swizzle!(hi4, lo4, SWIZZLE_2_HI);
     let lo2_prep = simd_swizzle!(hi4, lo4, SWIZZLE_2_LO);
 
-    const MASK_2: u32x16 = u32x16::splat(0x33333333);
+    const MASK_2:  u32x16 = u32x16::splat(0x33333333);
     const SHIFT_2: u32x16 = u32x16::splat(2);
 
-    let hi2 = (hi2_prep & MASK_2) | ((lo2_prep & MASK_2) << SHIFT_2);
+    let hi2 = (hi2_prep &  MASK_2) | ((lo2_prep &  MASK_2) << SHIFT_2);
     let lo2 = (lo2_prep & !MASK_2) | ((hi2_prep & !MASK_2) >> SHIFT_2);
 
     // 1 bit
@@ -129,10 +131,10 @@ fn transpose_lsb(matrix: &mut [u32; 32]) {
     let hi1_prep = simd_swizzle!(hi2, lo2, SWIZZLE_1_HI);
     let lo1_prep = simd_swizzle!(hi2, lo2, SWIZZLE_1_LO);
 
-    const MASK_1: u32x16 = u32x16::splat(0x55555555);
+    const MASK_1:  u32x16 = u32x16::splat(0x55555555);
     const SHIFT_1: u32x16 = u32x16::splat(1);
 
-    let hi1 = (hi1_prep & MASK_1) | ((lo1_prep & MASK_1) << SHIFT_1);
+    let hi1 = (hi1_prep &  MASK_1) | ((lo1_prep &  MASK_1) << SHIFT_1);
     let lo1 = (lo1_prep & !MASK_1) | ((hi1_prep & !MASK_1) >> SHIFT_1);
 
     // Final swizzle
